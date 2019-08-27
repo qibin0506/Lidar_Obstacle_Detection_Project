@@ -35,14 +35,20 @@ struct KdTree
       return;
     }
     
-    if (depth % 2 == 0) {
+    if (depth % 3 == 0) {
       if (point.x < node->point.x) {
         insert(node->left, depth+1, point, id);
       } else {
         insert(node->right, depth+1, point, id);
       }
-    } else {
+    } else if (depth % 2 == 0) {
       if (point.y < node->point.y) {
+        insert(node->left, depth+1, point, id);
+      } else {
+        insert(node->right, depth+1, point, id);
+      }
+    }else {
+      if (point.z < node->point.z) {
         insert(node->left, depth+1, point, id);
       } else {
         insert(node->right, depth+1, point, id);
@@ -66,14 +72,16 @@ struct KdTree
       if (node->point.x >= target.x - distanceTol
          && node->point.x <= target.x + distanceTol
          && node->point.y >= target.y - distanceTol
-         && node->point.y <= target.y + distanceTol) {
-        float distance = sqrt(pow(node->point.x-target.x, 2) + pow(node->point.y-target.y, 2));
+         && node->point.y <= target.y + distanceTol
+         && node->point.z >= target.z - distanceTol
+         && node->point.z <= target.z + distanceTol) {
+        float distance = sqrt(pow(node->point.x-target.x, 2) + pow(node->point.y-target.y, 2) + pow(node->point.z-target.z, 2));
         if (distance <= distanceTol) {
           ids.push_back(node->id);
         }
       }
       
-      if (depth % 2 == 0) {
+      if (depth % 3 == 0) {
         if (target.x - distanceTol < node->point.x) {
           search(node->left, depth+1, target, distanceTol, ids);
         }
@@ -81,7 +89,7 @@ struct KdTree
         if (target.x + distanceTol > node->point.x) {
        	 search(node->right, depth+1, target, distanceTol, ids);
       	}
-      } else {
+      } else if (depth % 2 == 0) {
         if (target.y - distanceTol < node->point.y) {
           search(node->left, depth+1, target, distanceTol, ids);
         }
@@ -89,7 +97,14 @@ struct KdTree
         if (target.y + distanceTol > node->point.y) {
        	 search(node->right, depth+1, target, distanceTol, ids);
       	}
+      } else {
+        if (target.z - distanceTol < node->point.z) {
+          search(node->left, depth+1, target, distanceTol, ids);
+        }
+        
+        if (target.z + distanceTol > node->point.z) {
+       	 search(node->right, depth+1, target, distanceTol, ids);
+      	}
       }
     }
 };
-
